@@ -53,7 +53,7 @@ def user_main():
             with col2:
                 deleted = st.form_submit_button("削除")
             if submitted:
-                with st.spinner("更新中..."):
+                with st.spinner("更新中...", show_time=True):
                     permit_img_name = user.get("permit_img_name")
                     # 画像がアップロードされた場合はOneDriveに上書き
                     if permit_img is not None:
@@ -74,7 +74,7 @@ def user_main():
                     st.success("ユーザー情報を更新しました。")
                     st.rerun()
             if deleted:
-                with st.spinner("削除中..."):
+                with st.spinner("削除中...", show_time=True):
                     print(user["id"])
                     client.delete_item_from_container(user["id"], "user")
                     st.session_state["users"].pop(selected_idx)
@@ -98,7 +98,7 @@ def user_main():
         submitted = st.form_submit_button("登録")
         if submitted:
             if user_name and user_code:
-                with st.spinner("登録中..."):
+                with st.spinner("登録中...", show_time=True):
                     permit_img_name = None
                     if permit_img is not None:
                         extension = permit_img.name.split(".")[-1]

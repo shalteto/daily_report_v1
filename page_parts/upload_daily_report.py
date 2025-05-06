@@ -67,7 +67,7 @@ def upsert_daily_report():
         submit_button = st.form_submit_button(label="送信")
 
     if submit_button:
-        with st.spinner("送信中..."):
+        with st.spinner("送信中...", show_time=True):
             print("処理開始")
             if uploaded_files and users and task_type:
                 task_date = date.strftime("%Y-%m-%d")
@@ -121,7 +121,7 @@ def edit_daily_report():
         )
         filter_task_type = st.segmented_control(
             "作業内容で絞り込み",
-            [""] + list(st.session_state.task_type_option.keys()),
+            list(st.session_state.task_type_option.keys()),
             selection_mode="single",
         )
         filter_date_from = st.date_input(
@@ -238,7 +238,7 @@ def edit_daily_report():
                         )
                         submit_edit = st.form_submit_button("保存")
                         if submit_edit:
-                            with st.spinner("送信中..."):
+                            with st.spinner("送信中...", show_time=True):
                                 # 画像差し替え
                                 if images:
                                     for img_idx, img in enumerate(images):
@@ -308,7 +308,7 @@ def edit_daily_report():
                 if st.session_state.get(confirm_key, False):
                     st.warning(f"本当に削除しますか？")
                     if st.button("削除", key=f"confirm_yes_{d['id']}"):
-                        with st.spinner("送信中..."):
+                        with st.spinner("送信中...", show_time=True):
                             # データを削除
                             client.delete_item_from_container(d["id"], "daily")
                             st.session_state["daily_reports"].remove(d)

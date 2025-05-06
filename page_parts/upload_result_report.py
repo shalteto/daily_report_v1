@@ -127,7 +127,7 @@ def upsert_catch_result():
 
         # combine_images_with_bandで処理する画像キー
         combine_keys = ["image1", "image2", "image3", "image4"]
-        with st.spinner("許可証画像をダウンロードしています..."):
+        with st.spinner("許可証画像をダウンロードしています...", show_time=True):
             permit_image_data, _ = download_onedrive_image(
                 f"user_image/{st.session_state['user']['permit_img_name']}"
             )
@@ -140,7 +140,9 @@ def upsert_catch_result():
             file = images[key]
             file.seek(0)
             if key in combine_keys:
-                with st.spinner(f"{key} の画像を処理・アップロード中..."):
+                with st.spinner(
+                    f"{key} の画像を処理・アップロード中...", show_time=True
+                ):
                     # combine_images_with_bandで画像を処理
                     processed_img_path = combine_images_with_band(
                         file,
@@ -154,7 +156,7 @@ def upsert_catch_result():
                     print(f"アップロード開始{key}：{name}")
                     upload_onedrive(f"catch_result/{name}", processed_img)
             else:
-                with st.spinner(f"{key} の画像をアップロード中..."):
+                with st.spinner(f"{key} の画像をアップロード中...", show_time=True):
                     ext = file.name.split(".")[-1]
                     name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.{ext}"
                     print(f"アップロード開始{key}：{name}")
@@ -178,7 +180,7 @@ def upsert_catch_result():
         }
         # 画像名をdataに追加
         data.update(image_names)
-        with st.spinner("データを送信しています..."):
+        with st.spinner("データを送信しています...", show_time=True):
             submit_data(data)
             st.session_state["catch_results"].append(data)
 

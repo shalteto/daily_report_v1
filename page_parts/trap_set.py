@@ -93,7 +93,7 @@ def trap_set():
             gps_data = False
             gps_coordinates = None
             if trap_images and len(trap_images) > 0:
-                with st.spinner("GPSデータ取得中..."):
+                with st.spinner("GPSデータ取得中...", show_time=True):
                     # 最初の画像からGPSデータを取得
                     trap_images[0].seek(0)
                     gps_coordinates = get_gps_coordinates(trap_images[0].read())
@@ -102,7 +102,7 @@ def trap_set():
                     trap_images[0].seek(0)
 
             if trap_images and trap_name and gps_data:
-                with st.spinner("画像アップロード中..."):
+                with st.spinner("画像アップロード中...", show_time=True):
                     images = file_upload_trap(trap_images, trap_id)
                 # 画像情報に緯度経度を追加
                 lat, lon = gps_coordinates
@@ -125,7 +125,7 @@ def trap_set():
                 }
 
                 try:
-                    with st.spinner("CosmosDBへ登録中..."):
+                    with st.spinner("CosmosDBへ登録中...", show_time=True):
                         submit_data(data=data)
                 except Exception as e:
                     st.error(f"CosmosDB登録エラー: {e}")

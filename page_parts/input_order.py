@@ -21,7 +21,7 @@ def input_order():
 
     if submit_button:
         if customer_name and order_name and area and start_date and end_date:
-            with st.spinner("送信中..."):
+            with st.spinner("送信中...", show_time=True):
                 data = {
                     "id": str(uuid.uuid4()),
                     "category": "order",
@@ -97,7 +97,7 @@ def edit_order():
 
             if submit_button:
                 if customer_name and order_name and area and start_date and end_date:
-                    with st.spinner("更新中..."):
+                    with st.spinner("更新中...", show_time=True):
                         updated_data = {
                             "id": selected_order["id"],
                             "category": "order",
@@ -123,7 +123,7 @@ def edit_order():
                     if not end_date:
                         st.error("終了日を入力してください。")
             if delete_button:
-                with st.spinner("削除中..."):
+                with st.spinner("削除中...", show_time=True):
                     client.delete_item_from_container(selected_order["id"], "order")
                     st.session_state["orders"].pop(selected_idx)
                 st.success("受注情報を削除しました。")
