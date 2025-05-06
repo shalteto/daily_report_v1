@@ -3,6 +3,7 @@ from page_parts.trap_map import trap_map
 from datetime import datetime, timedelta
 from azure_.one_drive import upload_onedrive, download_onedrive_image
 from page_parts.upload_daily_report import submit_data
+from services.gps import get_gps_coordinates
 from services.image import combine_images_with_band
 import uuid
 import os
@@ -165,6 +166,14 @@ def upsert_catch_result():
                     upload_onedrive(f"catch_result/{name}", file)
             image_names[key] = name
 
+        location_image = images["image2"]
+        location_image.seek(0)
+        gps_coordinates = get_gps_coordinates(location_image.read())
+        if gps_coordinates:
+            gps_data = True
+        location_image.seek(0)
+        lat, lon = gps_coordinates
+
         data = {
             "id": str(uuid.uuid4()),
             "category": "result",
@@ -174,6 +183,8 @@ def upsert_catch_result():
             "catch_date": date.strftime("%Y-%m-%d"),
             "catch_method": catch_method,
             "trap": trap,
+            "latitude": lat,
+            "longitude": lon,
             "sex": sex,
             "adult": adult,
             "size": size,

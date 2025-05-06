@@ -48,6 +48,15 @@ def call_trap_date():
     return st.session_state["traps"]
 
 
+map_style_options = {
+    "衛星写真": "mapbox://styles/mapbox/satellite-v9",
+    "アウトドア": "mapbox://styles/mapbox/outdoors-v11",
+    "道路地図": "mapbox://styles/mapbox/streets-v11",
+    "ライト（明るい）": "mapbox://styles/mapbox/light-v10",
+    "ダーク（暗い）": "mapbox://styles/mapbox/dark-v10",
+}
+
+
 def trap_map(width=400, height=400, mode="稼働中", multi_select="multi-object"):
     trap_data = st.session_state.traps
     # trap_data = sample_trap_data()
@@ -55,7 +64,12 @@ def trap_map(width=400, height=400, mode="稼働中", multi_select="multi-object
     if not trap_data:
         st.warning("トラップデータがありません。")
         return
-
+    map_style_label = st.selectbox(
+        "地図のスタイルを選択してください",
+        options=list(map_style_options.keys()),
+        index=0,
+    )
+    map_style_url = map_style_options[map_style_label]
     # データをデータフレームに変換
     trap_data = pd.DataFrame(trap_data)
 
@@ -128,7 +142,7 @@ def trap_map(width=400, height=400, mode="稼働中", multi_select="multi-object
     chart = pdk.Deck(
         layers=[layer],
         initial_view_state=view_state,
-        map_style="mapbox://styles/mapbox/satellite-v9",
+        map_style=map_style_url,
         tooltip={"text": "{trap_name}"},
     )
     if mode != "稼働中":
