@@ -127,35 +127,38 @@ def upsert_catch_result():
 
         # combine_images_with_bandで処理する画像キー
         combine_keys = ["image1", "image2", "image3", "image4"]
-        permit_image_data, _ = download_onedrive_image(
-            f"user_image/{st.session_state['user']['permit_img_name']}"
-        )
-        # permit_img で取得した画像を保存
-        permit_image_path = "permit_image_data.png"
-        with open(permit_image_path, "wb") as f:
-            f.write(permit_image_data)
+        with st.spinner("許可証画像をダウンロードしています..."):
+            permit_image_data, _ = download_onedrive_image(
+                f"user_image/{st.session_state['user']['permit_img_name']}"
+            )
+            # permit_img で取得した画像を保存
+            permit_image_path = "permit_image_data.png"
+            with open(permit_image_path, "wb") as f:
+                f.write(permit_image_data)
 
         for idx, (key, _) in enumerate(image_fields, 1):
             file = images[key]
             file.seek(0)
             if key in combine_keys:
-                # combine_images_with_bandで画像を処理
-                processed_img_path = combine_images_with_band(
-                    file,
-                    combine_data,
-                    permit_img_path=permit_image_path,
-                    font_path="NotoSansJP-Regular.ttf",
-                )
-                name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.png"
-                with open(processed_img_path, "rb") as processed_file:
-                    processed_img = processed_file.read()
-                print(f"アップロード開始{key}：{name}")
-                upload_onedrive(f"catch_result/{name}", processed_img)
+                with st.spinner(f"{key} の画像を処理・アップロード中..."):
+                    # combine_images_with_bandで画像を処理
+                    processed_img_path = combine_images_with_band(
+                        file,
+                        combine_data,
+                        permit_img_path=permit_image_path,
+                        font_path="NotoSansJP-Regular.ttf",
+                    )
+                    name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.png"
+                    with open(processed_img_path, "rb") as processed_file:
+                        processed_img = processed_file.read()
+                    print(f"アップロード開始{key}：{name}")
+                    upload_onedrive(f"catch_result/{name}", processed_img)
             else:
-                ext = file.name.split(".")[-1]
-                name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.{ext}"
-                print(f"アップロード開始{key}：{name}")
-                upload_onedrive(f"catch_result/{name}", file)
+                with st.spinner(f"{key} の画像をアップロード中..."):
+                    ext = file.name.split(".")[-1]
+                    name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.{ext}"
+                    print(f"アップロード開始{key}：{name}")
+                    upload_onedrive(f"catch_result/{name}", file)
             image_names[key] = name
 
         data = {
@@ -175,8 +178,9 @@ def upsert_catch_result():
         }
         # 画像名をdataに追加
         data.update(image_names)
-        submit_data(data)
-        st.session_state["catch_results"].append(data)
+        with st.spinner("データを送信しています..."):
+            submit_data(data)
+            st.session_state["catch_results"].append(data)
 
 
 def edit_catch_result():

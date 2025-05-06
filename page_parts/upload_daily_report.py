@@ -67,45 +67,46 @@ def upsert_daily_report():
         submit_button = st.form_submit_button(label="送信")
 
     if submit_button:
-        print("処理開始")
-        if uploaded_files and users and task_type:
-            task_date = date.strftime("%Y-%m-%d")
-            image_frame_data = {
-                "実施日": task_date,
-                "委託業務名": "渥美地区野生イノシシ根絶事業",
-                "実施地域": "渥美地区",
-                "従事人数": len(users),
-            }
-            add_data_image_path = combine_images_with_band(
-                uploaded_files,
-                image_frame_data,
-                permit_img_path=None,
-                font_path="NotoSansJP-Regular.ttf",
-            )
-            images = file_upload_daily(add_data_image_path, task_type)
+        with st.spinner("送信中..."):
+            print("処理開始")
+            if uploaded_files and users and task_type:
+                task_date = date.strftime("%Y-%m-%d")
+                image_frame_data = {
+                    "実施日": task_date,
+                    "委託業務名": "渥美地区野生イノシシ根絶事業",
+                    "実施地域": "渥美地区",
+                    "従事人数": len(users),
+                }
+                add_data_image_path = combine_images_with_band(
+                    uploaded_files,
+                    image_frame_data,
+                    permit_img_path=None,
+                    font_path="NotoSansJP-Regular.ttf",
+                )
+                images = file_upload_daily(add_data_image_path, task_type)
 
-            # 画像のアップロード
-            data = {
-                "id": str(uuid.uuid4()),
-                "category": "daily",
-                "fy": st.session_state.fy,
-                "users": users,
-                "task_type": task_type,
-                "task_date": task_date,
-                "start_time": start_time.strftime("%H:%M"),
-                "end_time": end_time.strftime("%H:%M"),
-                "images": images,
-                "comment": comment,
-            }
-            submit_data(data)
-            st.session_state["daily_reports"].append(data)
-        else:
-            if not users:
-                st.error("従事者を選択してください。")
-            if not uploaded_files:
-                st.error("写真をアップロードしてください。")
-            if not task_type:
-                st.error("作業内容を選択してください。")
+                # 画像のアップロード
+                data = {
+                    "id": str(uuid.uuid4()),
+                    "category": "daily",
+                    "fy": st.session_state.fy,
+                    "users": users,
+                    "task_type": task_type,
+                    "task_date": task_date,
+                    "start_time": start_time.strftime("%H:%M"),
+                    "end_time": end_time.strftime("%H:%M"),
+                    "images": images,
+                    "comment": comment,
+                }
+                submit_data(data)
+                st.session_state["daily_reports"].append(data)
+            else:
+                if not users:
+                    st.error("従事者を選択してください。")
+                if not uploaded_files:
+                    st.error("写真をアップロードしてください。")
+                if not task_type:
+                    st.error("作業内容を選択してください。")
 
 
 def edit_daily_report():
@@ -237,62 +238,65 @@ def edit_daily_report():
                         )
                         submit_edit = st.form_submit_button("保存")
                         if submit_edit:
-                            # 画像差し替え
-                            if images:
-                                for img_idx, img in enumerate(images):
-                                    replace_file = st.session_state.get(
-                                        f"replace_{d['id']}_{img_idx}"
-                                    )
-                                    if replace_file:
-                                        extension = replace_file.name.split(".")[-1]
-                                        now = datetime.now().strftime("%Y%m%d%H%M%S")
-                                        new_blob_name = f"{now}_{st.session_state.task_type_option[d['task_type']]}_{img_idx+1}.{extension}"
-                                        replace_file.seek(0)
+                            with st.spinner("送信中..."):
+                                # 画像差し替え
+                                if images:
+                                    for img_idx, img in enumerate(images):
+                                        replace_file = st.session_state.get(
+                                            f"replace_{d['id']}_{img_idx}"
+                                        )
+                                        if replace_file:
+                                            extension = replace_file.name.split(".")[-1]
+                                            now = datetime.now().strftime(
+                                                "%Y%m%d%H%M%S"
+                                            )
+                                            new_blob_name = f"{now}_{st.session_state.task_type_option[d['task_type']]}_{img_idx+1}.{extension}"
+                                            replace_file.seek(0)
+                                            upload_onedrive(
+                                                f"daily_report/{new_blob_name}",
+                                                replace_file,
+                                            )
+                                            d["images"][img_idx]["name"] = new_blob_name
+                                            st.success(
+                                                f"{img['name']} を {new_blob_name} に差し替えました。"
+                                            )
+                                # 追加: 写真追加処理
+                                if add_files:
+                                    now = datetime.now().strftime("%Y%m%d%H%M%S")
+                                    start_idx = len(d["images"]) + 1
+                                    for i, add_file in enumerate(
+                                        add_files, start=start_idx
+                                    ):
+                                        extension = add_file.name.split(".")[-1]
+                                        blob_name = f"{now}_{st.session_state.task_type_option[d['task_type']]}_{i}.{extension}"
+                                        add_file.seek(0)
                                         upload_onedrive(
-                                            f"daily_report/{new_blob_name}",
-                                            replace_file,
+                                            f"daily_report/{blob_name}", add_file
                                         )
-                                        d["images"][img_idx]["name"] = new_blob_name
-                                        st.success(
-                                            f"{img['name']} を {new_blob_name} に差し替えました。"
-                                        )
-                            # 追加: 写真追加処理
-                            if add_files:
-                                now = datetime.now().strftime("%Y%m%d%H%M%S")
-                                start_idx = len(d["images"]) + 1
-                                for i, add_file in enumerate(
-                                    add_files, start=start_idx
+                                        d["images"].append({"name": blob_name})
+                                    st.success("写真を追加しました。")
+                                # データを更新
+                                d["users"] = edit_users
+                                d["task_type"] = edit_task_type
+                                d["task_date"] = edit_date.strftime("%Y-%m-%d")
+                                d["start_time"] = edit_start_time
+                                d["end_time"] = edit_end_time
+                                d["comment"] = edit_comment
+                                d["id"] = d["id"]
+                                d["fy"] = d["fy"]
+                                d["category"] = "daily"
+                                d["images"] = d["images"]
+                                submit_data(d)
+                                # st.session_state["daily_reports"] からidで検索して更新
+                                for i, report in enumerate(
+                                    st.session_state["daily_reports"]
                                 ):
-                                    extension = add_file.name.split(".")[-1]
-                                    blob_name = f"{now}_{st.session_state.task_type_option[d['task_type']]}_{i}.{extension}"
-                                    add_file.seek(0)
-                                    upload_onedrive(
-                                        f"daily_report/{blob_name}", add_file
-                                    )
-                                    d["images"].append({"name": blob_name})
-                                st.success("写真を追加しました。")
-                            # データを更新
-                            d["users"] = edit_users
-                            d["task_type"] = edit_task_type
-                            d["task_date"] = edit_date.strftime("%Y-%m-%d")
-                            d["start_time"] = edit_start_time
-                            d["end_time"] = edit_end_time
-                            d["comment"] = edit_comment
-                            d["id"] = d["id"]
-                            d["fy"] = d["fy"]
-                            d["category"] = "daily"
-                            d["images"] = d["images"]
-                            submit_data(d)
-                            # st.session_state["daily_reports"] からidで検索して更新
-                            for i, report in enumerate(
-                                st.session_state["daily_reports"]
-                            ):
-                                if report["id"] == d["id"]:
-                                    st.session_state["daily_reports"][i] = d
-                                    break
-                            st.success("編集内容を保存しました")
-                            st.session_state["editing_id"] = None
-                            st.rerun()
+                                    if report["id"] == d["id"]:
+                                        st.session_state["daily_reports"][i] = d
+                                        break
+                                st.success("編集内容を保存しました")
+                                st.session_state["editing_id"] = None
+                                st.rerun()
                     if st.button("キャンセル", key=f"edit_cancel_{d['id']}"):
                         st.session_state["editing_id"] = None
                         st.rerun()
@@ -304,11 +308,12 @@ def edit_daily_report():
                 if st.session_state.get(confirm_key, False):
                     st.warning(f"本当に削除しますか？")
                     if st.button("削除", key=f"confirm_yes_{d['id']}"):
-                        # データを削除
-                        client.delete_item_from_container(d["id"], "daily")
-                        st.session_state["daily_reports"].remove(d)
-                        st.success("削除しました")
-                        st.session_state[confirm_key] = False
-                        st.rerun()
+                        with st.spinner("送信中..."):
+                            # データを削除
+                            client.delete_item_from_container(d["id"], "daily")
+                            st.session_state["daily_reports"].remove(d)
+                            st.success("削除しました")
+                            st.session_state[confirm_key] = False
+                            st.rerun()
                     if st.button("キャンセル", key=f"confirm_cancel_{d['id']}"):
                         st.session_state[confirm_key] = False

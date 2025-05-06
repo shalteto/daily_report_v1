@@ -21,18 +21,19 @@ def input_order():
 
     if submit_button:
         if customer_name and order_name and area and start_date and end_date:
-            data = {
-                "id": str(uuid.uuid4()),
-                "category": "order",
-                "customer_name": customer_name,
-                "order_name": order_name,
-                "year": order_year,
-                "area": area,
-                "start_date": start_date.strftime("%Y-%m-%d"),
-                "end_date": end_date.strftime("%Y-%m-%d"),
-            }
-            client.upsert_to_container(data)
-            st.session_state["orders"].append(data)
+            with st.spinner("送信中..."):
+                data = {
+                    "id": str(uuid.uuid4()),
+                    "category": "order",
+                    "customer_name": customer_name,
+                    "order_name": order_name,
+                    "year": order_year,
+                    "area": area,
+                    "start_date": start_date.strftime("%Y-%m-%d"),
+                    "end_date": end_date.strftime("%Y-%m-%d"),
+                }
+                client.upsert_to_container(data)
+                st.session_state["orders"].append(data)
             st.success("送信完了")
         else:
             if not customer_name:
@@ -96,18 +97,19 @@ def edit_order():
 
             if submit_button:
                 if customer_name and order_name and area and start_date and end_date:
-                    updated_data = {
-                        "id": selected_order["id"],
-                        "category": "order",
-                        "customer_name": customer_name,
-                        "order_name": order_name,
-                        "year": selected_order["year"],
-                        "area": area,
-                        "start_date": start_date.strftime("%Y-%m-%d"),
-                        "end_date": end_date.strftime("%Y-%m-%d"),
-                    }
-                    client.upsert_to_container(updated_data)
-                    st.session_state["users"][selected_idx] = updated_data
+                    with st.spinner("更新中..."):
+                        updated_data = {
+                            "id": selected_order["id"],
+                            "category": "order",
+                            "customer_name": customer_name,
+                            "order_name": order_name,
+                            "year": selected_order["year"],
+                            "area": area,
+                            "start_date": start_date.strftime("%Y-%m-%d"),
+                            "end_date": end_date.strftime("%Y-%m-%d"),
+                        }
+                        client.upsert_to_container(updated_data)
+                        st.session_state["users"][selected_idx] = updated_data
                     st.success("更新完了")
                 else:
                     if not customer_name:
@@ -121,7 +123,8 @@ def edit_order():
                     if not end_date:
                         st.error("終了日を入力してください。")
             if delete_button:
-                client.delete_item_from_container(selected_order["id"], "order")
-                st.session_state["orders"].pop(selected_idx)
+                with st.spinner("削除中..."):
+                    client.delete_item_from_container(selected_order["id"], "order")
+                    st.session_state["orders"].pop(selected_idx)
                 st.success("受注情報を削除しました。")
                 st.rerun()

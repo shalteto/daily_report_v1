@@ -53,31 +53,33 @@ def user_main():
             with col2:
                 deleted = st.form_submit_button("削除")
             if submitted:
-                permit_img_name = user.get("permit_img_name")
-                # 画像がアップロードされた場合はOneDriveに上書き
-                if permit_img is not None:
-                    extension = permit_img.name.split(".")[-1]
-                    permit_img_name = f"従事者証_{user_name}.{extension}"
-                    upload_onedrive(f"user_image/{permit_img_name}", permit_img)
-                updated = {
-                    **user,
-                    "category": "user",
-                    "user_name": user_name,
-                    "user_code": user_code,
-                    "admin": admin,
-                    "id": user["id"],
-                    "permit_img_name": permit_img_name,
-                }
-                client.upsert_to_container(updated)
-                st.session_state["users"][selected_idx] = updated
-                st.success("ユーザー情報を更新しました。")
-                st.rerun()
+                with st.spinner("更新中..."):
+                    permit_img_name = user.get("permit_img_name")
+                    # 画像がアップロードされた場合はOneDriveに上書き
+                    if permit_img is not None:
+                        extension = permit_img.name.split(".")[-1]
+                        permit_img_name = f"従事者証_{user_name}.{extension}"
+                        upload_onedrive(f"user_image/{permit_img_name}", permit_img)
+                    updated = {
+                        **user,
+                        "category": "user",
+                        "user_name": user_name,
+                        "user_code": user_code,
+                        "admin": admin,
+                        "id": user["id"],
+                        "permit_img_name": permit_img_name,
+                    }
+                    client.upsert_to_container(updated)
+                    st.session_state["users"][selected_idx] = updated
+                    st.success("ユーザー情報を更新しました。")
+                    st.rerun()
             if deleted:
-                print(user["id"])
-                client.delete_item_from_container(user["id"], "user")
-                st.session_state["users"].pop(selected_idx)
-                st.success("ユーザーを削除しました。")
-                st.rerun()
+                with st.spinner("削除中..."):
+                    print(user["id"])
+                    client.delete_item_from_container(user["id"], "user")
+                    st.session_state["users"].pop(selected_idx)
+                    st.success("ユーザーを削除しました。")
+                    st.rerun()
     else:
         st.info("ユーザーが登録されていません。")
 
@@ -96,23 +98,24 @@ def user_main():
         submitted = st.form_submit_button("登録")
         if submitted:
             if user_name and user_code:
-                permit_img_name = None
-                if permit_img is not None:
-                    extension = permit_img.name.split(".")[-1]
-                    permit_img_name = f"従事者証_{user_name}.{extension}"
-                    upload_onedrive(f"user_image/{permit_img_name}", permit_img)
+                with st.spinner("登録中..."):
+                    permit_img_name = None
+                    if permit_img is not None:
+                        extension = permit_img.name.split(".")[-1]
+                        permit_img_name = f"従事者証_{user_name}.{extension}"
+                        upload_onedrive(f"user_image/{permit_img_name}", permit_img)
 
-                new_user = {
-                    "id": str(uuid.uuid4()),
-                    "category": "user",
-                    "user_name": user_name,
-                    "user_code": user_code,
-                    "admin": admin,
-                    "permit_img_name": permit_img_name,
-                }
-                client.upsert_to_container(new_user)
-                st.session_state["users"].append(new_user)
-                st.success("ユーザーを登録しました。")
-                st.rerun()
+                    new_user = {
+                        "id": str(uuid.uuid4()),
+                        "category": "user",
+                        "user_name": user_name,
+                        "user_code": user_code,
+                        "admin": admin,
+                        "permit_img_name": permit_img_name,
+                    }
+                    client.upsert_to_container(new_user)
+                    st.session_state["users"].append(new_user)
+                    st.success("ユーザーを登録しました。")
+                    st.rerun()
             else:
                 st.warning("氏名とコードは必須です。")
