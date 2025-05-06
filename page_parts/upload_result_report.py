@@ -34,9 +34,11 @@ def upsert_catch_result():
         list(st.session_state.catch_method_option.keys()),
         selection_mode="single",
     )
-    if catch_method in ["くくり", "箱"]:
-        trap_map(mode="稼働中")
-
+    if catch_method in ["くくり罠", "箱罠"]:
+        trap_map(mode="稼働中", multi_select="single-object")
+    if st.session_state.selected_objects:
+        for p in st.session_state.selected_objects["map"]:
+            st.write(f"選択中の罠：{p['trap_name']}")
     with st.form(key="catch_result"):
         st.caption("入力は１頭ずつ行って下さい")
         user_code = st.session_state["user"]["user_code"]

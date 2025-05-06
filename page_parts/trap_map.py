@@ -131,8 +131,8 @@ def trap_map(width=400, height=500, mode="稼働中", multi_select="multi-object
         map_style="mapbox://styles/mapbox/satellite-v9",
         tooltip={"text": "{trap_name}"},
     )
-
-    st.caption("🔵稼働中  🔴撤去済み")
+    if mode != "稼働中":
+        st.caption("🔵稼働中  🔴撤去済み")
     event = st.pydeck_chart(
         chart,
         selection_mode=multi_select,  # single-objectにするときは,
