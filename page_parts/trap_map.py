@@ -67,7 +67,7 @@ def trap_map(width=400, height=400, mode="稼働中", multi_select="multi-object
     trap_data["color"] = [[0, 255, 0]] * len(trap_data)  # デフォルトカラー（緑色）
     for idx, row in trap_data.iterrows():
         if row["status"] == "稼働中":
-            trap_data.at[idx, "color"] = [0, 0, 255, 160]  # 青色
+            trap_data.at[idx, "color"] = [255, 216, 0, 160]  # 黄色
         elif row["status"] == "撤去済み":
             trap_data.at[idx, "color"] = [225, 0, 0, 160]  # 赤色
 
@@ -132,7 +132,7 @@ def trap_map(width=400, height=400, mode="稼働中", multi_select="multi-object
         tooltip={"text": "{trap_name}"},
     )
     if mode != "稼働中":
-        st.caption("🔵稼働中  🔴撤去済み")
+        st.caption("🟡稼働中  🔴撤去済み")
     event = st.pydeck_chart(
         chart,
         selection_mode=multi_select,  # single-objectにするときは,
