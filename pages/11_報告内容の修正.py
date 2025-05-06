@@ -3,7 +3,10 @@ from page_parts.upload_daily_report import edit_daily_report
 
 
 def main():
-    edit_daily_report()
+    if st.session_state.user is not None:
+        edit_daily_report()
+    else:
+        st.warning("最初の画面でログインをしてください。")
 
 
 if __name__ == "__main__":

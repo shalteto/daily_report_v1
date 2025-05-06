@@ -6,9 +6,12 @@ st.set_page_config(page_title="作業報告", layout="wide", page_icon="🐗")
 
 
 def main():
-    if st.session_state.trap_data == "":
-        st.session_state.trap_data = call_trap_date()
-    upsert_daily_report()
+    if st.session_state.user is not None:
+        if st.session_state.trap_data == "":
+            st.session_state.trap_data = call_trap_date()
+        upsert_daily_report()
+    else:
+        st.warning("最初の画面でログインをしてください。")
 
 
 if __name__ == "__main__":

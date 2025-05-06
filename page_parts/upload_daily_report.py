@@ -38,9 +38,18 @@ def submit_data(data):
 def upsert_daily_report():
     st.subheader("作業報告🐗")
     with st.form(key="daily_report"):
-        users = st.multiselect("従事者選択", user_options, key="user_select")
-        task_type = st.selectbox(
-            "作業内容選択", list(st.session_state.task_type_option.keys())
+        # st.write(st.session_state.user)
+        users = st.segmented_control(
+            "従事者選択",
+            user_options,
+            key="user_select",
+            selection_mode="multi",
+            default=st.session_state.user["user_name"],
+        )
+        task_type = st.segmented_control(
+            "作業内容選択",
+            list(st.session_state.task_type_option.keys()),
+            selection_mode="single",
         )
         date = st.date_input("作業日を選択", datetime.today())
         now = datetime.now() + timedelta(hours=9)
@@ -106,9 +115,13 @@ def edit_daily_report():
 
     st.subheader("作業報告編集")
     with st.form(key="edit_daily_report_filter"):
-        filter_users = st.multiselect("従事者で絞り込み", user_options)
-        filter_task_type = st.selectbox(
-            "作業内容で絞り込み", [""] + list(st.session_state.task_type_option.keys())
+        filter_users = st.segmented_control(
+            "従事者で絞り込み", user_options, selection_mode="multi"
+        )
+        filter_task_type = st.segmented_control(
+            "作業内容で絞り込み",
+            [""] + list(st.session_state.task_type_option.keys()),
+            selection_mode="single",
         )
         filter_date_from = st.date_input(
             "作業日(開始)", value=None, key="filter_date_from"
@@ -159,19 +172,19 @@ def edit_daily_report():
                     st.session_state["editing_id"] = d["id"]
                 if st.session_state.get("editing_id") == d["id"]:
                     with st.form(key=f"edit_form_{d['id']}"):
-                        edit_users = st.multiselect(
+                        edit_users = st.segmented_control(
                             "従事者",
                             user_options,
                             default=d.get("users", []),
                             key=f"edit_users_{d['id']}",
+                            selection_mode="multi",
                         )
-                        edit_task_type = st.selectbox(
+                        edit_task_type = st.segmented_control(
                             "作業内容",
                             list(st.session_state.task_type_option.keys()),
-                            index=list(st.session_state.task_type_option.keys()).index(
-                                d.get("task_type", "")
-                            ),
+                            default=d.get("task_type", ""),
                             key=f"edit_task_type_{d['id']}",
+                            selection_mode="single",
                         )
                         edit_date = st.date_input(
                             "作業日",

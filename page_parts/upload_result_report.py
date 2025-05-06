@@ -42,8 +42,12 @@ def upsert_catch_result():
         user_code = st.session_state["user"]["user_code"]
         result_id = get_result_id(user_code)
         st.markdown(f"捕獲識別番号: **{result_id}**")
-        users = st.multiselect(
-            "従事者選択(複数選択可)", user_options, key="user_select"
+        users = st.segmented_control(
+            "従事者選択",
+            user_options,
+            key="user_select",
+            selection_mode="multi",
+            default=[st.session_state["user"]["user_name"]],
         )
         date = st.date_input("捕獲日を選択", datetime.today())
 

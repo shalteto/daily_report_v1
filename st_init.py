@@ -46,8 +46,6 @@ def init():
         st.session_state.daily_reports = data["daily_reports"]
         st.session_state.catch_results = data["catch_results"]
         st.session_state.orders = data["orders"]
-    if "show_selectbox" not in st.session_state:
-        st.session_state.show_selectbox = False
     if "task_type_option" not in st.session_state:
         st.session_state.task_type_option = {
             "わな猟見回り": "trap_research",
