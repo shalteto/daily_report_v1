@@ -21,7 +21,7 @@ def main():
             st.session_state.trap_page = "trap_edit"
 
     if st.session_state.trap_page == "None":
-        st.caption("上のボタンを教えてください")
+        st.caption("↑ボタンを押してください")
     if st.session_state.trap_page == "new_trap":
         trap_set()
     if st.session_state.trap_page == "status_change":

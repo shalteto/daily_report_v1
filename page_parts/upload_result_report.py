@@ -5,7 +5,7 @@ from azure_.one_drive import upload_onedrive, download_onedrive_image
 from page_parts.upload_daily_report import submit_data
 from services.image import combine_images_with_band
 import uuid
-
+import os
 
 users_df = st.session_state.users
 user_options = list({u["user_name"] for u in users_df})
@@ -123,25 +123,34 @@ def upsert_catch_result():
 
         # combine_images_with_bandで処理する画像キー
         combine_keys = ["image1", "image2", "image3", "image4"]
-        permit_img = download_onedrive_image(
+        permit_image_data, _ = download_onedrive_image(
             f"user_image/{st.session_state['user']['permit_img_name']}"
         )
+        # permit_img で取得した画像を保存
+        permit_image_path = "permit_image_data.png"
+        with open(permit_image_path, "wb") as f:
+            f.write(permit_image_data)
 
         for idx, (key, _) in enumerate(image_fields, 1):
             file = images[key]
-            ext = file.name.split(".")[-1]
-            name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.{ext}"
             file.seek(0)
             if key in combine_keys:
                 # combine_images_with_bandで画像を処理
-                processed_img = combine_images_with_band(
+                processed_img_path = combine_images_with_band(
                     file,
                     combine_data,
-                    permit_img_path=permit_img,
+                    permit_img_path=permit_image_path,
                     font_path="NotoSansJP-Regular.ttf",
                 )
+                name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.png"
+                with open(processed_img_path, "rb") as processed_file:
+                    processed_img = processed_file.read()
+                print(f"アップロード開始{key}：{name}")
                 upload_onedrive(f"catch_result/{name}", processed_img)
             else:
+                ext = file.name.split(".")[-1]
+                name = f"{now}_{st.session_state.catch_method_option[catch_method]}_{key}.{ext}"
+                print(f"アップロード開始{key}：{name}")
                 upload_onedrive(f"catch_result/{name}", file)
             image_names[key] = name
 
@@ -293,7 +302,7 @@ def edit_catch_result():
                         for img_idx, (img_key, img_label) in enumerate(image_fields):
                             img_name = d.get(img_key)
                             if img_name:
-                                file_path = f"daily_report/{img_name}"
+                                file_path = f"catch_result/{img_name}"
                                 image_data, error = download_onedrive_image(file_path)
                                 if error:
                                     st.warning(f"{img_name} の取得失敗: {error}")

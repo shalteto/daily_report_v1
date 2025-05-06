@@ -31,7 +31,6 @@ def upload_onedrive(filename, uploaded_file):
         "Content-Type": "application/octet-stream",
     }
     upload_url = f"https://graph.microsoft.com/v1.0/users/{TARGET_USER}/drive/root:/{filename}:/content"
-    print(uploaded_file.name)
     response = requests.put(upload_url, headers=headers, data=uploaded_file)
 
     return (
