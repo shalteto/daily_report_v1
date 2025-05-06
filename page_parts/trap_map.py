@@ -48,7 +48,7 @@ def call_trap_date():
     return st.session_state["traps"]
 
 
-def trap_map(width=400, height=500, mode="稼働中", multi_select="multi-object"):
+def trap_map(width=400, height=400, mode="稼働中", multi_select="multi-object"):
     trap_data = st.session_state.traps
     # trap_data = sample_trap_data()
 
@@ -138,7 +138,7 @@ def trap_map(width=400, height=500, mode="稼働中", multi_select="multi-object
         selection_mode=multi_select,  # single-objectにするときは,
         on_select="rerun",
         # width=width,
-        # height=height,
+        height=height,
     )
     if event.selection["objects"] == {}:
         st.session_state.selected_objects = {"map": []}
